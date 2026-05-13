@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Scholarly — Teacher dashboard for student academic tracking.">
+  <title>Scholarly — Dashboard</title>
+  <link rel="stylesheet" href="/css/scholarly.css">
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sb-icon">
+        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <h1>Scholarly</h1>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <button class="nav-item active" data-page="dashboard" id="nav-dashboard">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+          Dashboard
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Manage</div>
+        <button class="nav-item" data-page="students" id="nav-students">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          Students
+        </button>
+        <button class="nav-item" data-page="attendance" id="nav-attendance">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          Attendance
+        </button>
+        <button class="nav-item" data-page="exams" id="nav-exams">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+          Exam Scores
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Insights</div>
+        <button class="nav-item" data-page="analytics" id="nav-analytics">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+          Analytics
+        </button>
+        <button class="nav-item" data-page="schedule" id="nav-schedule">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          Schedule
+        </button>
+      </div>
+      <div class="nav-section hidden" id="admin-nav-section">
+        <div class="nav-section-label">Admin</div>
+        <button class="nav-item" data-page="admin" id="nav-admin">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+          Manage Accounts
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar" id="topbar">
+    <div class="topbar-left">
+      <button class="btn btn-icon btn-secondary" id="sidebar-toggle" style="display:none" aria-label="Menu">☰</button>
+      <h2 id="page-title">Dashboard</h2>
+    </div>
+    <div class="topbar-right">
+      <span class="theme-label">☀️</span>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme"></button>
+      <span class="theme-label">🌙</span>
+      <div style="position:relative">
+        <button class="profile-trigger" id="profile-trigger">
+          <div class="profile-avatar" id="topbar-avatar">--</div>
+          <span class="profile-name" id="topbar-name">Teacher</span>
+          <span style="font-size:.6rem">▼</span>
+        </button>
+        <div class="profile-dropdown hidden" id="profile-dropdown">
+          <div class="dd-header">
+            <div class="dd-name" id="dd-name"></div>
+            <div class="dd-class" id="dd-class"></div>
+          </div>
+          <button class="dd-item" id="dd-theme-btn">🎨 Toggle Theme</button>
+          <button class="dd-item danger" id="dd-logout-btn">🚪 Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="app-main" id="app-main">
+    <!-- Dashboard Page -->
+    <section class="page-section active" id="page-dashboard"></section>
+    <!-- Students Page -->
+    <section class="page-section" id="page-students"></section>
+    <!-- Attendance Page -->
+    <section class="page-section" id="page-attendance"></section>
+    <!-- Exams Page -->
+    <section class="page-section" id="page-exams"></section>
+    <!-- Analytics Page -->
+    <section class="page-section" id="page-analytics"></section>
+    <!-- Schedule Page -->
+    <section class="page-section" id="page-schedule"></section>
+    <!-- Admin Page -->
+    <section class="page-section" id="page-admin"></section>
+  </main>
+
+  <div id="splash" class="hidden">
+    <div class="splash-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+    <h1 class="splash-title">Scholarly</h1>
+    <p class="splash-tagline">Doing better everyday</p>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/pages.js"></script>
+  <script>
+    if(sessionStorage.getItem('playSplash') === 'true') {
+      sessionStorage.removeItem('playSplash');
+      const splash = document.getElementById('splash');
+      splash.classList.remove('hidden');
+      setTimeout(() => splash.classList.add('hidden'), 2800);
+    }
+  </script>
+</body>
+</html>

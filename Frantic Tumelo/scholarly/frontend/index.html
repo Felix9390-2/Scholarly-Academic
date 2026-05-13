@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Scholarly — Teacher-driven student academic tracking. Sign in.">
+  <title>Scholarly — Sign In</title>
+  <link rel="stylesheet" href="/css/scholarly.css">
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-container">
+      <div class="logo">
+        <div class="logo-mascot" id="logo-mascot">
+          <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h1>Scholarly</h1>
+      </div>
+
+      <div class="greeting-big" id="greeting-text"></div>
+
+      <div class="theme-row">
+        <span class="theme-label">☀️</span>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme"></button>
+        <span class="theme-label">🌙</span>
+      </div>
+
+      <div id="error-msg" class="error-msg hidden"></div>
+      <div id="success-msg" class="success-msg hidden"></div>
+
+      <form id="login-form" autocomplete="on">
+        <div class="form-group">
+          <input type="text" id="loginName" name="loginName" placeholder="Login Name" required autofocus autocomplete="username">
+        </div>
+        <div class="form-group">
+          <input type="password" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="login-btn" id="login-btn">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    initThemeToggle('theme-toggle');
+    if(isLoggedIn()) window.location.href = getRole()==='student' ? '/student.html' : '/dashboard.html';
+
+    // Big greeting
+    const h=new Date().getHours();
+    const gt=document.getElementById('greeting-text');
+    if(h<12) gt.textContent='Good Morning ☀️';
+    else if(h<17) gt.textContent='Good Afternoon 🌤️';
+    else gt.textContent='Good Evening 🌙';
+
+    const form=document.getElementById('login-form');
+    const errEl=document.getElementById('error-msg');
+    const succEl=document.getElementById('success-msg');
+    const btn=document.getElementById('login-btn');
+
+    form.addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      errEl.classList.add('hidden');
+      succEl.classList.add('hidden');
+      const loginName=document.getElementById('loginName').value.trim();
+      const password=document.getElementById('password').value;
+      if(!loginName||!password){errEl.textContent='Please fill in all fields.';errEl.classList.remove('hidden');return}
+      btn.disabled=true;
+      btn.innerHTML='<span class="spinner-inline"></span> SIGNING IN…';
+      try{
+        const data = await apiLogin(loginName,password);
+        succEl.textContent="✓ You're in! Redirecting…";
+        succEl.classList.remove('hidden');
+        const dest = data.role === 'student' ? '/student.html' : '/dashboard.html';
+        setTimeout(()=>window.location.href=dest,800);
+      }catch(err){
+        errEl.textContent=err.message||'Login failed.';
+        errEl.classList.remove('hidden');
+        btn.disabled=false;
+        btn.textContent='Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

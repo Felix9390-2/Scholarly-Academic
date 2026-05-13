@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholarly — My Dashboard</title>
+  <link rel="stylesheet" href="/css/scholarly.css">
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sb-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+      <h1>Scholarly</h1>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">My Portal</div>
+        <button class="nav-item active" data-page="home" id="nav-home">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+          Dashboard
+        </button>
+        <button class="nav-item" data-page="my-attendance" id="nav-my-attendance">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          Attendance
+        </button>
+        <button class="nav-item" data-page="my-scores" id="nav-my-scores">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+          Exam Scores
+        </button>
+        <button class="nav-item" data-page="my-analytics" id="nav-my-analytics">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+          Analytics
+        </button>
+        <button class="nav-item" data-page="my-schedule" id="nav-my-schedule">
+          <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          Schedule
+        </button>
+      </div>
+    </nav>
+  </aside>
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn btn-icon btn-secondary" id="sidebar-toggle" style="display:none">☰</button>
+      <h2 id="page-title">Dashboard</h2>
+    </div>
+    <div class="topbar-right">
+      <span class="theme-label">☀️</span>
+      <button class="theme-toggle" id="theme-toggle"></button>
+      <span class="theme-label">🌙</span>
+      <div style="position:relative">
+        <button class="profile-trigger" id="profile-trigger">
+          <div class="profile-avatar" id="topbar-avatar">--</div>
+          <span class="profile-name" id="topbar-name">Student</span>
+          <span style="font-size:.6rem">▼</span>
+        </button>
+        <div class="profile-dropdown hidden" id="profile-dropdown">
+          <div class="dd-header"><div class="dd-name" id="dd-name"></div><div class="dd-class" id="dd-class"></div></div>
+          <button class="dd-item" id="dd-theme-btn">🎨 Toggle Theme</button>
+          <button class="dd-item danger" id="dd-logout-btn">🚪 Log Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="app-main" id="app-main">
+    <section class="page-section active" id="page-home"></section>
+    <section class="page-section" id="page-my-attendance"></section>
+    <section class="page-section" id="page-my-scores"></section>
+    <section class="page-section" id="page-my-analytics"></section>
+    <section class="page-section" id="page-my-schedule"></section>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/theme.js"></script>
+  <script>
+initThemeToggle('theme-toggle');
+if(!isLoggedIn()||getRole()!=='student') window.location.href='/';
+const COLORS=['#6366f1','#8b5cf6','#ec4899','#f59e0b','#22c55e','#06b6d4','#ef4444'];
+let me=null;
+
+// Nav
+document.querySelectorAll('.nav-item[data-page]').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
+function goPage(p){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector(`[data-page="${p}"]`)?.classList.add('active');
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-'+p)?.classList.add('active');
+  const t={'home':'Dashboard','my-attendance':'Attendance','my-scores':'Exam Scores','my-analytics':'Analytics','my-schedule':'Schedule'};
+  document.getElementById('page-title').textContent=t[p]||p;
+  const l={'home':loadHome,'my-attendance':loadMyAtt,'my-scores':loadMyScores,'my-analytics':loadMyAnalytics,'my-schedule':loadMySchedule};
+  if(l[p]) l[p]();
+}
+
+// Dropdown
+const pt=document.getElementById('profile-trigger'),pd=document.getElementById('profile-dropdown');
+pt.addEventListener('click',e=>{e.stopPropagation();pd.classList.toggle('hidden')});
+document.addEventListener('click',()=>pd.classList.add('hidden'));
+document.getElementById('dd-logout-btn').addEventListener('click',logout);
+document.getElementById('dd-theme-btn').addEventListener('click',()=>{const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);localStorage.setItem('scholarly_theme',t)});
+
+// Mobile
+if(window.innerWidth<=768) document.getElementById('sidebar-toggle').style.display='flex';
+document.getElementById('sidebar-toggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+
+function getGreeting(){const h=new Date().getHours();if(h<12) return 'Good Morning';if(h<17) return 'Good Afternoon';return 'Good Evening'}
+
+// Init
+(async()=>{
+  try{
+    me=await apiGetMe();
+    document.getElementById('topbar-avatar').textContent=me.initials;
+    document.getElementById('topbar-name').textContent=me.full_name.split(' ')[0];
+    document.getElementById('dd-name').textContent=me.full_name;
+    document.getElementById('dd-class').textContent='Class '+me.class_section;
+    loadHome();
+  }catch(e){document.getElementById('app-main').innerHTML='<div class="loading">Failed to load. <a href="/">Sign in</a></div>'}
+})();
+
+async function loadHome(){
+  const pg=document.getElementById('page-home');
+  pg.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    const att=await apiMyAttendance();
+    const analytics=await apiMyAnalytics();
+    const events=await apiMyEvents();
+    const upcoming=events.filter(e=>new Date(e.event_date)>=new Date()).slice(0,3);
+    const trendIcon=analytics.overall_trend==='improving'?'📈':analytics.overall_trend==='declining'?'📉':'➡️';
+    pg.innerHTML=`
+      <div class="greeting-big" style="text-align:left;margin-bottom:1.5rem"><span>${getGreeting()},</span> ${me.full_name.split(' ')[0]} 👋</div>
+      ${me.remarks?`<div class="card" style="margin-bottom:1rem"><div class="card-title" style="margin-bottom:.5rem">📝 Teacher Remarks</div><p style="font-size:.9rem;font-weight:600;color:var(--text-light)">${me.remarks}</p></div>`:''}
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Class</div><div class="stat-value">${me.class_section}</div><div class="stat-sub">Roll: ${me.roll_number||'—'}</div></div>
+        <div class="stat-card"><div class="stat-label">Attendance</div><div class="stat-value">${att.percentage}%</div><div class="stat-sub">${att.present_days}/${att.total_days} days</div></div>
+        <div class="stat-card"><div class="stat-label">Trend</div><div class="stat-value">${trendIcon} ${analytics.overall_trend}</div></div>
+      </div>
+      <div class="card"><div class="card-title" style="margin-bottom:.75rem">Upcoming</div>
+        ${upcoming.length?upcoming.map(ev=>{const d=new Date(ev.event_date);const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`<div class="event-card"><div class="event-date-badge"><div class="edb-day">${d.getDate()}</div><div class="edb-month">${m[d.getMonth()]}</div></div><div class="event-info"><div class="ei-title">${ev.title} <span class="event-type-badge ${ev.event_type}">${ev.event_type}</span></div></div></div>`}).join(''):'<div class="empty-state"><div class="empty-text">No upcoming events</div></div>'}
+      </div>`;
+  }catch(e){pg.innerHTML=`<div class="empty-state"><div class="empty-text">${e.message}</div></div>`}
+}
+
+async function loadMyAtt(){
+  const pg=document.getElementById('page-my-attendance');
+  pg.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    const att=await apiMyAttendance();
+    // Attendance dot calendar
+    let cal='';
+    if(att.records.length){
+      cal='<div class="chart-wrap"><div class="chart-title">Attendance Calendar</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+      att.records.slice().reverse().forEach(r=>{
+        cal+=`<div title="${r.date}: ${r.present?'Present':'Absent'}" style="width:18px;height:18px;border-radius:4px;background:${r.present?'var(--success)':'var(--danger)'};opacity:.85;cursor:pointer"></div>`;
+      });
+      cal+='</div><div style="margin-top:.5rem;font-size:.7rem;font-weight:700;color:var(--text-light)"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--success);margin-right:3px"></span>Present <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--danger);margin-left:8px;margin-right:3px"></span>Absent</div></div>';
+    }
+    pg.innerHTML=`
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Days</div><div class="stat-value">${att.total_days}</div></div>
+        <div class="stat-card"><div class="stat-label">Present</div><div class="stat-value trend-up">${att.present_days}</div></div>
+        <div class="stat-card"><div class="stat-label">Absent</div><div class="stat-value trend-down">${att.absent_days}</div></div>
+        <div class="stat-card"><div class="stat-label">Percentage</div><div class="stat-value">${att.percentage}%</div></div>
+      </div>
+      ${cal}
+      <div class="card"><div class="card-title" style="margin-bottom:.75rem">Recent Records</div>
+        ${att.records.length?`<table class="data-table"><thead><tr><th>Date</th><th>Status</th></tr></thead><tbody>
+        ${att.records.slice(0,30).map(r=>`<tr><td>${r.date}</td><td><span class="badge ${r.present?'badge-green':'badge-red'}">${r.present?'Present':'Absent'}</span></td></tr>`).join('')}
+        </tbody></table>`:'<div class="empty-state"><div class="empty-text">No records yet</div></div>'}
+      </div>`;
+  }catch(e){pg.innerHTML=`<div class="empty-state"><div class="empty-text">${e.message}</div></div>`}
+}
+
+async function loadMyScores(){
+  const pg=document.getElementById('page-my-scores');
+  pg.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    const data=await apiMyScores();
+    if(!Object.keys(data.scores_by_exam).length){pg.innerHTML='<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">No scores yet</div></div>';return}
+    let html='';
+    for(const[exam,info] of Object.entries(data.scores_by_exam)){
+      html+=`<div class="card" style="margin-bottom:.75rem"><div class="card-header"><div class="card-title">${exam}</div><span class="badge badge-primary">${info.percentage}%</span></div>
+        <table class="data-table"><thead><tr><th>Subject</th><th>Marks</th><th>Max</th><th>%</th></tr></thead>
+        <tbody>${info.subjects.map(s=>`<tr><td>${s.subject}</td><td>${s.marks_obtained}</td><td>${s.max_marks}</td><td><span class="badge ${s.percentage>=75?'badge-green':s.percentage>=40?'badge-yellow':'badge-red'}">${s.percentage}%</span></td></tr>`).join('')}
+        <tr style="font-weight:800"><td>Total</td><td>${info.total_obtained}</td><td>${info.total_max}</td><td>${info.percentage}%</td></tr>
+        </tbody></table></div>`;
+    }
+    pg.innerHTML=html;
+  }catch(e){pg.innerHTML=`<div class="empty-state"><div class="empty-text">${e.message}</div></div>`}
+}
+
+async function loadMyAnalytics(){
+  const pg=document.getElementById('page-my-analytics');
+  pg.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    const d=await apiMyAnalytics();
+    const ti=d.overall_trend==='improving'?'📈':d.overall_trend==='declining'?'📉':'➡️';
+    const tc=d.overall_trend==='improving'?'trend-up':d.overall_trend==='declining'?'trend-down':'trend-stable';
+    let h=`<div class="stats-grid"><div class="stat-card"><div class="stat-label">Trend</div><div class="stat-value ${tc}">${ti} ${d.overall_trend}</div></div><div class="stat-card"><div class="stat-label">Attendance</div><div class="stat-value">${d.attendance.percentage}%</div></div></div>`;
+    h+=`<div class="chart-wrap"><div class="chart-title">Exam Performance</div><div class="chart-bar-group">`;
+    d.exam_order.forEach((e,i)=>{const v=d.exam_trends[e];h+=`<div class="chart-bar" style="height:${v?v*1.6:0}px;background:${COLORS[i%COLORS.length]}${v===null?';opacity:.2':''}"><div class="bar-val">${v?v+'%':'—'}</div><div class="bar-label">${e}</div></div>`});
+    h+=`</div></div>`;
+    h+=`<div class="chart-wrap"><div class="chart-title">Subject Performance</div><div class="chart-bar-group">`;
+    d.subjects.forEach((s,i)=>{const vs=d.subject_trends[s];const lv=vs.filter(v=>v!==null).pop();h+=`<div class="chart-bar" style="height:${lv?lv*1.6:0}px;background:${COLORS[i%COLORS.length]}${lv==null?';opacity:.2':''}"><div class="bar-val">${lv!=null?lv+'%':'—'}</div><div class="bar-label">${s.substring(0,4)}</div></div>`});
+    h+=`</div></div>`;
+    h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">`;
+    h+=`<div class="card"><div class="card-title" style="margin-bottom:.75rem">⚠️ Weak Areas</div>`;
+    if(d.weak_subjects.length) d.weak_subjects.forEach(w=>h+=`<div class="weakness-card"><div class="wc-subject">${w.subject}</div><div class="wc-reason">${w.reason} — ${w.avg.toFixed(1)}%</div></div>`);
+    else h+=`<div class="empty-state" style="padding:1rem"><div class="empty-text">None!</div></div>`;
+    h+=`</div><div class="card"><div class="card-title" style="margin-bottom:.75rem">💪 Strong Areas</div>`;
+    if(d.strong_subjects.length) d.strong_subjects.forEach(s=>h+=`<div class="strength-card"><div class="sc-subject">${s.subject}</div><div class="sc-avg">${s.avg.toFixed(1)}%</div></div>`);
+    else h+=`<div class="empty-state" style="padding:1rem"><div class="empty-text">Not enough data</div></div>`;
+    h+=`</div></div>`;
+    if(d.remarks) h+=`<div class="card" style="margin-top:1rem"><div class="card-title" style="margin-bottom:.5rem">📝 Teacher Remarks</div><p style="font-size:.9rem;font-weight:600;color:var(--text-light)">${d.remarks}</p></div>`;
+    // AI Summary
+    h+=`<div class="card" style="margin-top:1rem"><div class="card-header"><div class="card-title">🤖 AI Academic Advisor</div>
+      <button class="btn btn-primary btn-sm" id="btn-my-ai">Generate Summary</button></div>
+      <div id="my-ai-box" style="padding:.5rem 0;font-size:.88rem;font-weight:600;color:var(--text-light);line-height:1.6;white-space:pre-wrap"></div></div>`;
+    pg.innerHTML=h;
+    document.getElementById('btn-my-ai')?.addEventListener('click',async function(){
+      const btn=this;const box=document.getElementById('my-ai-box');
+      btn.disabled=true;btn.textContent='Thinking…';
+      box.innerHTML='<div class="spinner"></div>';
+      try{
+        await apiAISummary(me.id, text=>{box.textContent=text}, text=>{btn.textContent='Regenerate';btn.disabled=false});
+      }catch(e){box.textContent='⚠️ '+e.message;btn.textContent='Retry';btn.disabled=false}
+    });
+  }catch(e){pg.innerHTML=`<div class="empty-state"><div class="empty-text">${e.message}</div></div>`}
+}
+
+async function loadMySchedule(){
+  const pg=document.getElementById('page-my-schedule');
+  pg.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    const events=await apiMyEvents();
+    if(!events.length){pg.innerHTML='<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">No scheduled events</div></div>';return}
+    const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    pg.innerHTML=events.map(ev=>{const dt=new Date(ev.event_date);return`<div class="event-card"><div class="event-date-badge"><div class="edb-day">${dt.getDate()}</div><div class="edb-month">${m[dt.getMonth()]}</div></div><div class="event-info"><div class="ei-title">${ev.title} <span class="event-type-badge ${ev.event_type}">${ev.event_type}</span></div>${ev.description?`<div class="ei-desc">${ev.description}</div>`:''}</div></div>`}).join('');
+  }catch(e){pg.innerHTML=`<div class="empty-state"><div class="empty-text">${e.message}</div></div>`}
+}
+  </script>
+
+  <div id="splash" class="hidden">
+    <div class="splash-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+    <h1 class="splash-title">Scholarly</h1>
+    <p class="splash-tagline">Doing better everyday</p>
+  </div>
+
+  <script>
+    if(sessionStorage.getItem('playSplash') === 'true') {
+      sessionStorage.removeItem('playSplash');
+      const splash = document.getElementById('splash');
+      splash.classList.remove('hidden');
+      setTimeout(() => splash.classList.add('hidden'), 2800);
+    }
+  </script>
+</body>
+</html>
