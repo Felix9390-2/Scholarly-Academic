@@ -14,7 +14,7 @@ from models import Teacher, Student
 
 SECRET_KEY = os.getenv("SECRET_KEY", "scholarly-dev-secret-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", "1440"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", "1440324334"))
 
 def verify_password(plain: str, hashed: str) -> bool:
     try:
@@ -31,6 +31,7 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
