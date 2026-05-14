@@ -8,31 +8,24 @@ import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-
 from database import get_db
 from models import Teacher, Student
-
 SECRET_KEY = os.getenv("SECRET_KEY", "scholarly-dev-secret-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", "1440324334"))
-
 def verify_password(plain: str, hashed: str) -> bool:
     try:
         return bcrypt.checkpw(plain.encode('utf-8'), hashed.encode('utf-8'))
     except Exception:
         return False
-
 def hash_password(plain: str) -> str:
     return bcrypt.hashpw(plain.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
@@ -52,17 +45,13 @@ def get_current_user(
         uid = int(sub)
     except (JWTError, ValueError, TypeError):
         raise cred_exc
-
     if role == "student":
         user = db.query(Student).filter(Student.id == uid).first()
     else:
         user = db.query(Teacher).filter(Teacher.id == uid).first()
-
     if user is None:
         raise cred_exc
     return user, role
-
-
 def get_current_teacher(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
@@ -72,8 +61,6 @@ def get_current_teacher(
     if role != "teacher":
         raise HTTPException(status_code=403, detail="Teacher access required")
     return user
-
-
 def get_current_student(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
@@ -83,8 +70,6 @@ def get_current_student(
     if role != "student":
         raise HTTPException(status_code=403, detail="Student access required")
     return user
-
-
 def require_admin(teacher: Teacher = Depends(get_current_teacher)) -> Teacher:
     if not teacher.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
